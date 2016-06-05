@@ -1,0 +1,73 @@
+// include stepper library
+#include <Stepper.h>
+
+const int stepsPerRevolution = 200;  // Nema17 motor has 200 steps in 360 degrees rotation
+
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);  // pins 8,9 go to PULL+ & PULL- , pins 10,11 go to DIR+ & DIR-
+
+int tracknumber = 10;  // how many ramps of the track do you want ?
+int actualtracknumber = 0; // current track number
+int motiondirection = 4;   // set motor increments used for forwards and backwards.
+int moves = 0;            // current move number
+int goforit = 1;         // start or stop the move ?
+
+int topspeed = 3201;  // top speed of RAMP up/down
+int bottomspeed = 1;   // start and end speed of RAMP up/down
+
+void setup() {
+  
+  myStepper.setSpeed(50);  // not sure if you need this
+  }
+
+void loop() {
+
+    if (goforit == 1) 
+  {
+  moveit();
+  }
+
+    else
+  {
+  donothing();
+  }
+  }
+
+void moveit()
+
+{
+
+   int x = 1;
+   for (int i = 50; i > -1; i = i + x ) {
+      
+      if (i >= topspeed) 
+      {
+      x = -1;            // switch direction at peak
+      }
+      
+      if (i <= bottomspeed)
+      { 
+      x = +1; // switch direction at troff
+      moves++;
+      actualtracknumber++; 
+      }
+        
+    int benspeed=i;
+      myStepper.setSpeed(benspeed);
+      myStepper.step(motiondirection);
+      
+       if (moves >=1) motiondirection = -4; // switch direction 
+       if (moves >=2) motiondirection = 4 , moves = 0;
+       if (actualtracknumber >= tracknumber * 2 )  // when the motor has done forward and back the TRACKNUMBER amount set then back to void();
+       { 
+       goforit = 0;
+       return;
+       }
+     }
+}
+
+
+void donothing()
+{
+while(1);
+}
