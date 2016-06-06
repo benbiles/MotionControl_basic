@@ -6,18 +6,27 @@ const int stepsPerRevolution = 200;  // Nema17 motor has 200 steps in 360 degree
 // initialize the stepper library on pins 8 through 11:
 Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);  // pins 8,9 go to PULL+ & PULL- , pins 10,11 go to DIR+ & DIR-
 
-int tracknumber = 10;  // how many ramps of the track do you want ?
+int tracknumber = 2;  // SET HOW MANY TRACKS YOU WANT UP AND BACK
+int trackdistance = 20000;
+
 int actualtracknumber = 0; // current track number
-int motiondirection = 4;   // set motor increments used for forwards and backwards.
+
+int motiondirection = 2;   // set initial forward motor increments.
+int forwardsincrement = 2; // forward
+int backwardsincrement = -2; // backwards
+
 int moves = 0;            // current move number
 int goforit = 1;         // start or stop the move ?
 
-int topspeed = 3201;  // top speed of RAMP up/down
+int topspeed = 3201;  // TOP SPEED OF TRACKING
 int bottomspeed = 1;   // start and end speed of RAMP up/down
+
+int benspeed = 1;     // current speed
 
 void setup() {
   
-  myStepper.setSpeed(50);  // not sure if you need this
+ //  do some setup here
+ 
   }
 
 void loop() {
@@ -42,6 +51,7 @@ void moveit()
       
       if (i >= topspeed) 
       {
+      topspeedhold();    // hold top speed for trackdistance variable
       x = -1;            // switch direction at peak
       }
       
@@ -56,8 +66,8 @@ void moveit()
       myStepper.setSpeed(benspeed);
       myStepper.step(motiondirection);
       
-       if (moves >=1) motiondirection = -4; // switch direction 
-       if (moves >=2) motiondirection = 4 , moves = 0;
+       if (moves >=1) motiondirection = backwardsincrement; // switch direction 
+       if (moves >=2) motiondirection = forwardsincrement , moves = 0;
        if (actualtracknumber >= tracknumber * 2 )  // when the motor has done forward and back the TRACKNUMBER amount set then back to void();
        { 
        goforit = 0;
@@ -66,6 +76,20 @@ void moveit()
      }
 }
 
+void topspeedhold()   // hold top speed for trackdistance variable
+{
+ int f = 1;
+   for (int f = 50; f > -1; f = f + 1 ) {
+         
+      if (f >= trackdistance) 
+      {
+      return;
+      }
+      
+      myStepper.setSpeed(topspeed);
+      myStepper.step(motiondirection);
+   }
+}
 
 void donothing()
 {
